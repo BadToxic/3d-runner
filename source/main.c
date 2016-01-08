@@ -46,7 +46,10 @@ int main()
 			sf2d_set_clear_color(RGBA8(rand()%255, rand()%255, rand()%255, 255));
 		}
 		
-		if (held & KEY_RIGHT) {
+		if (held & KEY_A) {
+			player_set_sprite(&p1, ANIMATION_JUMP);
+		}
+		else if (held & KEY_RIGHT) {
 			player_set_sprite(&p1, ANIMATION_RUN);
 		}
 		else {

@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -34,6 +36,20 @@ void player_set_sprite_run(struct Player *p) {
 	
 }
 
+void player_set_sprite_jump(struct Player *p) {
+
+	if (p->animation_id != ANIMATION_JUMP) {
+		p->animation_id = ANIMATION_JUMP;
+		memcpy(p->sprite_array, p->sprite_jump, sizeof p->sprite_jump);
+		p->image_index  = round(rand() % 2);
+		p->image_index_counter = p->image_index;
+		p->sprite       = p->sprite_array[p->image_index];
+		p->image_number = p->sprite_jump_image_number;
+		p->image_speed  = 0;
+	}
+	
+}
+
 void player_set_sprite(struct Player *p, int animation_id) {
 
 	if (p->animation_id != animation_id) {
@@ -42,6 +58,9 @@ void player_set_sprite(struct Player *p, int animation_id) {
 		}
 		else if (animation_id == ANIMATION_RUN) {
 			player_set_sprite_run(p);
+		}
+		else if (animation_id == ANIMATION_JUMP) {
+			player_set_sprite_jump(p);
 		}
 	}
 	
@@ -52,15 +71,19 @@ struct Player player_create(unsigned int x, unsigned int y) {
 	struct Player p;
 	p.x = x;
 	p.y = y;
-	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_stand_image_number = 1;
+	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	p.sprite_run_image_number = 6;
 	p.sprite_run[0] = sf2d_create_texture_mem_RGBA8(spr_char_run_1.pixel_data, spr_char_run_1.width, spr_char_run_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run[1] = sf2d_create_texture_mem_RGBA8(spr_char_run_2.pixel_data, spr_char_run_2.width, spr_char_run_2.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run[2] = sf2d_create_texture_mem_RGBA8(spr_char_run_3.pixel_data, spr_char_run_3.width, spr_char_run_3.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run[3] = sf2d_create_texture_mem_RGBA8(spr_char_run_4.pixel_data, spr_char_run_4.width, spr_char_run_4.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run[4] = sf2d_create_texture_mem_RGBA8(spr_char_run_5.pixel_data, spr_char_run_5.width, spr_char_run_5.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run[5] = sf2d_create_texture_mem_RGBA8(spr_char_run_6.pixel_data, spr_char_run_6.width, spr_char_run_6.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	p.sprite_run_image_number = 6;
+	p.sprite_jump_image_number = 2;
+	p.sprite_jump[0] = sf2d_create_texture_mem_RGBA8(spr_char_jump_1.pixel_data, spr_char_jump_1.width, spr_char_jump_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	p.sprite_jump[1] = sf2d_create_texture_mem_RGBA8(spr_char_jump_2.pixel_data, spr_char_jump_2.width, spr_char_jump_2.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	
 	p.animation_id = -1;
 	player_set_sprite(&p, ANIMATION_STAND);
 	
