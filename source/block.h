@@ -4,11 +4,12 @@
 #include <sf2d.h>
 
 struct Block {
-  unsigned int x;
-  unsigned int y;
+  int x;
+  int y;
   int z;
   unsigned int width;
   unsigned int height;
+  bool active;
   //sf2d_texture *sprite;
   //sf2d_texture *sprite_array[8];
   //unsigned int image_number;
@@ -17,7 +18,8 @@ struct Block {
   //float image_speed;
 };
 
-struct Block block_create(unsigned int, unsigned int, int, unsigned int, unsigned int);
+struct Block block_create(int, int, int, unsigned int, unsigned int);
+struct Block block_create_inactive();
 
 // void block_refresh_sprite(struct Block*);
 void block_draw(struct Block*, int);

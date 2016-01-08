@@ -11,6 +11,7 @@
 
 #define CONFIG_3D_SLIDERSTATE (*(float *)0x1FF81080)
 
+
 int main()
 {
 	// Set the random seed based on the time
@@ -20,10 +21,14 @@ int main()
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 	sf2d_set_3D(1);
 
+	unsigned int block_number_max = 64;
+	struct Block blocks[block_number_max];
+	for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+		blocks[block_index] = block_create_inactive();
+	}
 
-
-	struct Block b1 = block_create(48, 192, 6, 16, 16);
-	struct Block b2 = block_create(64, 192, 6, 16, 16);
+	blocks[0] = block_create(48, 192, 6, 16, 16);
+	blocks[1] = block_create(64, 192, 6, 16, 16);
 
 	struct Player p1 = player_create(32, 138, 8);
 
@@ -75,8 +80,10 @@ int main()
 			sf2d_draw_rectangle_rotate(offset3d + 260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(offset3d + 20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(offset3d + 5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			block_draw(&b1, -1);
-			block_draw(&b2, -1);
+			
+			for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+				block_draw(&blocks[block_index], -1);
+			}
 			player_draw(&p1, -1);
 			
 		sf2d_end_frame();
@@ -90,8 +97,10 @@ int main()
 			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			block_draw(&b1, 1);
-			block_draw(&b2, 1);
+			
+			for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+				block_draw(&blocks[block_index], 1);
+			}
 			player_draw(&p1, 1);
 			
 		sf2d_end_frame();
@@ -111,6 +120,9 @@ int main()
 	}
 
 	player_destroy(&p1);
+	for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+		block_destroy(&blocks[block_index]);
+	}
 
 	sf2d_fini();
 	return 0;

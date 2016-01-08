@@ -66,7 +66,7 @@ void player_set_sprite(struct Player *p, int animation_id) {
 	
 }
 
-struct Player player_create(unsigned int x, unsigned int y, int z) {
+struct Player player_create(int x, int y, int z) {
 
 	struct Player p;
 	p.x = x;
