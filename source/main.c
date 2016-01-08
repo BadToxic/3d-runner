@@ -22,10 +22,10 @@ int main()
 
 
 
-	struct Block b1 = block_create(48, 192, 16, 16);
-	struct Block b2 = block_create(64, 192, 16, 16);
+	struct Block b1 = block_create(48, 192, 6, 16, 16);
+	struct Block b2 = block_create(64, 192, 6, 16, 16);
 
-	struct Player p1 = player_create(32, 138);
+	struct Player p1 = player_create(32, 138, 8);
 
 
 	//float offset3d = 0.0f;
@@ -75,9 +75,9 @@ int main()
 			sf2d_draw_rectangle_rotate(offset3d + 260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(offset3d + 20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(offset3d + 5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			sf2d_draw_rectangle(b1.x + 6, b1.y, b1.width, b1.height, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_rectangle(b2.x + 6, b2.y, b2.width, b2.height, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_texture(p1.sprite, /*offset3d +*/ p1.x + 8, p1.y);
+			block_draw(&b1, -1);
+			block_draw(&b2, -1);
+			player_draw(&p1, -1);
 			
 		sf2d_end_frame();
 
@@ -90,9 +90,9 @@ int main()
 			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
 			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
 			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			sf2d_draw_rectangle(b1.x - 6, b1.y, b1.width, b1.height, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_rectangle(b2.x - 6, b2.y, b2.width, b2.height, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_texture(p1.sprite, p1.x - 8, p1.y);
+			block_draw(&b1, 1);
+			block_draw(&b2, 1);
+			player_draw(&p1, 1);
 			
 		sf2d_end_frame();
 

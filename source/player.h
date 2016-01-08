@@ -10,6 +10,7 @@ static const int ANIMATION_JUMP  = 2;
 struct Player {
   unsigned int x;
   unsigned int y;
+  int z;
   unsigned int width;
   unsigned int height;
   int animation_id;
@@ -33,10 +34,12 @@ void player_set_sprite_jump(struct Player*);
 
 void player_set_sprite(struct Player*, int);
 
-struct Player player_create(unsigned int, unsigned int);
+struct Player player_create(unsigned int, unsigned int, int);
 
 
 void player_refresh_sprite(struct Player*);
+
+void player_draw(struct Player*, int);
 
 void player_destroy(struct Player*);
 

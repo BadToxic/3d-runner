@@ -66,11 +66,12 @@ void player_set_sprite(struct Player *p, int animation_id) {
 	
 }
 
-struct Player player_create(unsigned int x, unsigned int y) {
+struct Player player_create(unsigned int x, unsigned int y, int z) {
 
 	struct Player p;
 	p.x = x;
 	p.y = y;
+	p.z = z;
 	p.sprite_stand_image_number = 1;
 	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run_image_number = 6;
@@ -104,6 +105,19 @@ void player_refresh_sprite(struct Player *p) {
 			p->sprite = p->sprite_array[p->image_index];
 		}
 	}
+	
+}
+
+void player_draw(struct Player *p, int eye) {
+	
+	int x3d = 0;
+	if (eye > 0) { // Right eye
+		x3d = -p->z;
+	}
+	else if (eye < 0) { // Left eye
+		x3d = p->z;
+	}
+	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
 	
 }
 
