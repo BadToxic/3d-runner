@@ -3,9 +3,11 @@
 
 #include <sf2d.h>
 
-static const int ANIMATION_STAND = 0;
-static const int ANIMATION_RUN   = 1;
-static const int ANIMATION_JUMP  = 2;
+#define ANIMATION_STAND 0
+#define ANIMATION_RUN   1
+#define ANIMATION_JUMP  2
+
+#define GRAVITY 0.8
 
 struct Player {
   int x;
@@ -13,6 +15,12 @@ struct Player {
   int z;
   unsigned int width;
   unsigned int height;
+  
+  float vspeed;
+  float jump_power;
+  float gravity;
+  bool jump_button_released;
+  
   int animation_id;
   sf2d_texture *sprite;
   sf2d_texture *sprite_array[8];
@@ -34,12 +42,16 @@ void player_set_sprite_jump(struct Player*);
 
 void player_set_sprite(struct Player*, int);
 
+void player_jump(struct Player*);
+
 struct Player player_create(int, int, int);
 
 
 void player_refresh_sprite(struct Player*);
 
 void player_draw(struct Player*, int);
+
+void player_controll(struct Player*, u32);
 
 void player_destroy(struct Player*);
 

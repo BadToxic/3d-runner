@@ -12,6 +12,7 @@
 #define CONFIG_3D_SLIDERSTATE (*(float *)0x1FF81080)
 
 
+
 int main()
 {
 	// Set the random seed based on the time
@@ -31,6 +32,7 @@ int main()
 	blocks[1] = block_create(64, 192, 6, 16, 16);
 
 	struct Player p1 = player_create(32, 138, 8);
+	
 
 
 	//float offset3d = 0.0f;
@@ -57,18 +59,27 @@ int main()
 			sf2d_set_clear_color(RGBA8(rand()%255, rand()%255, rand()%255, 255));
 		}
 		
-		if (held & KEY_A) {
-			player_set_sprite(&p1, ANIMATION_JUMP);
-		}
-		else if (held & KEY_RIGHT) {
-			player_set_sprite(&p1, ANIMATION_RUN);
-		}
-		else {
-			player_set_sprite(&p1, ANIMATION_STAND);
-		}
-
+		
+		player_controll(&p1, held);
 
 		player_refresh_sprite(&p1);
+		
+		// Player movement
+		if (p1.gravity != 0) {
+			// I'm not on the ground yet
+			
+			p1.y += p1.vspeed;
+			p1.vspeed += p1.gravity;
+			
+			if (p1.y >= 138) { // Back on ground
+				p1.vspeed  = 0;
+				p1.gravity = 0;
+				player_set_sprite(&p1, ANIMATION_STAND);
+				p1.y = 138;
+			}
+			
+		}
+		
 
 		// offset3d = CONFIG_3D_SLIDERSTATE * 30.0f;
 

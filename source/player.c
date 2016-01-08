@@ -66,12 +66,27 @@ void player_set_sprite(struct Player *p, int animation_id) {
 	
 }
 
+void player_jump(struct Player *p) {
+	if (p->animation_id != ANIMATION_JUMP) {
+		player_set_sprite(p, ANIMATION_JUMP);
+		p->vspeed  = -p->jump_power;
+		p->gravity = GRAVITY;
+		p->jump_button_released = false;
+	}
+}
+
 struct Player player_create(int x, int y, int z) {
 
 	struct Player p;
 	p.x = x;
 	p.y = y;
 	p.z = z;
+	
+	p.vspeed     = 0;
+    p.gravity    = 0;
+	p.jump_power = 12;
+	p.jump_button_released = true;
+	
 	p.sprite_stand_image_number = 1;
 	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_run_image_number = 6;
@@ -118,6 +133,33 @@ void player_draw(struct Player *p, int eye) {
 		x3d = p->z;
 	}
 	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
+	
+}
+
+void player_controll(struct Player *p, u32 held) {
+	
+	if (p->gravity == 0) {
+		if (held & KEY_A && p->jump_button_released) {
+			player_jump(p);
+		}
+		else {
+			if (!(held & KEY_A)) {
+				p->jump_button_released = true;
+			}
+			
+			if (held & KEY_RIGHT) {
+				player_set_sprite(p, ANIMATION_RUN);
+			}
+			else {
+				player_set_sprite(p, ANIMATION_STAND);
+			}
+		}
+	}
+	else if (p->vspeed < 0) { // Still jumping upwards
+		if (!(held & KEY_A)) {	// Slow down upwards movement
+			p->vspeed /= 2;
+		}
+	}
 	
 }
 
