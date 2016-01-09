@@ -10,7 +10,29 @@
 #include "player.h"
 
 #define CONFIG_3D_SLIDERSTATE (*(float *)0x1FF81080)
+#define BLOCK_NUMBER 64
 
+
+void player_check_collision(struct Player *p, struct Block (*blocks)[BLOCK_NUMBER]) {
+	
+	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+		if (blocks[block_index]->x < p->bbox_right && blocks[block_index]->x + blocks[block_index]->width > p->bbox_left) { // Collision posible
+		
+			if (p->vspeed > 0) { // While falling
+		
+				// Landing on ground
+				if (blocks[block_index]->y <= p->bbox_bottom && blocks[block_index]->y + blocks[block_index]->height > p->bbox_bottom) {
+					p->vspeed  = 0;
+					p->gravity = 0;
+					player_set_sprite(p, ANIMATION_STAND);
+					p->y += blocks[block_index]->y - p->bbox_bottom;
+				}
+			
+			}
+		}
+	}
+	
+}
 
 
 int main()
@@ -22,9 +44,8 @@ int main()
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 	sf2d_set_3D(1);
 
-	unsigned int block_number_max = 64;
-	struct Block blocks[block_number_max];
-	for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+	struct Block blocks[BLOCK_NUMBER];
+	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 		blocks[block_index] = block_create_inactive();
 	}
 
@@ -34,13 +55,6 @@ int main()
 	struct Player p1 = player_create(32, 138, 8);
 	
 
-
-	//float offset3d = 0.0f;
-	//float rad = 0.0f;
-	/*u16 touch_x = 320/2;
-	u16 touch_y = 240/2;
-	touchPosition touch;*/
-	//circlePosition circle;
 	u32 held;
 
 	while (aptMainLoop()) {
@@ -65,34 +79,17 @@ int main()
 		player_refresh_sprite(&p1);
 		
 		// Player movement
-		if (p1.gravity != 0) {
-			// I'm not on the ground yet
-			
-			p1.y += p1.vspeed;
-			p1.vspeed += p1.gravity;
-			
-			if (p1.y >= 138) { // Back on ground
-				p1.vspeed  = 0;
-				p1.gravity = 0;
-				player_set_sprite(&p1, ANIMATION_STAND);
-				p1.y = 138;
-			}
-			
-		}
+		player_move(&p1);
+		
+		// Check if player lands on ground or crashes against blocks
+		player_check_collision(&p1, &blocks);
 		
 
 		// offset3d = CONFIG_3D_SLIDERSTATE * 30.0f;
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		
-			/*sf2d_draw_fill_circle(offset3d + 60, 100, 35, RGBA8(0x00, 0xFF, 0x00, 0xFF));
-			sf2d_draw_fill_circle(offset3d + 180, 120, 55, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
-
-			sf2d_draw_rectangle_rotate(offset3d + 260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
-			sf2d_draw_rectangle(offset3d + 20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
-			sf2d_draw_rectangle(offset3d + 5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			
-			for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], -1);
 			}
 			player_draw(&p1, -1);
@@ -102,14 +99,7 @@ int main()
 
 		sf2d_start_frame(GFX_TOP, GFX_RIGHT);
 
-			/*sf2d_draw_fill_circle(60, 100, 35, RGBA8(0x00, 0xFF, 0x00, 0xFF));
-			sf2d_draw_fill_circle(180, 120, 55, RGBA8(0xFF, 0xFF, 0x00, 0xFF));
-
-			sf2d_draw_rectangle_rotate(260, 20, 40, 40, RGBA8(0xFF, 0xFF, 0x00, 0xFF), -2.0f*rad);
-			sf2d_draw_rectangle(20, 60, 40, 40, RGBA8(0xFF, 0x00, 0x00, 0xFF));
-			sf2d_draw_rectangle(5, 5, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));*/
-			
-			for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], 1);
 			}
 			player_draw(&p1, 1);
@@ -117,21 +107,11 @@ int main()
 		sf2d_end_frame();
 
 
-		/*sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-			sf2d_draw_rectangle_rotate(190, 160, 70, 60, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 3.0f*rad);
-			sf2d_draw_rectangle(30, 100, 40, 60, RGBA8(0xFF, 0x00, 0xFF, 0xFF));
-			//sf2d_draw_texture_rotate(tex2, touch_x, touch_y, -rad);
-			sf2d_draw_rectangle(160-15 + cosf(rad)*50.0f, 120-15 + sinf(rad)*50.0f, 30, 30, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-			sf2d_draw_fill_circle(40, 40, 35, RGBA8(0x00, 0xFF, 0x00, 0xFF));
-		sf2d_end_frame();*/
-
-		// rad += 0.2f;
-
 		sf2d_swapbuffers();
 	}
 
 	player_destroy(&p1);
-	for (unsigned int block_index = 0; block_index < block_number_max; block_index++) {
+	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 		block_destroy(&blocks[block_index]);
 	}
 

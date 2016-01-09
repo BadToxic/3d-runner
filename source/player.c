@@ -75,12 +75,21 @@ void player_jump(struct Player *p) {
 	}
 }
 
+void player_refresh_bbox(struct Player *p) {
+	p->bbox_left   = p->x + 23;
+	p->bbox_right  = p->x + 40;
+	p->bbox_top    = p->y + 10;
+	p->bbox_bottom = p->y + 52;
+}
+
 struct Player player_create(int x, int y, int z) {
 
 	struct Player p;
 	p.x = x;
 	p.y = y;
 	p.z = z;
+	
+	player_refresh_bbox(&p);	
 	
 	p.vspeed     = 0;
     p.gravity    = 0;
@@ -123,19 +132,6 @@ void player_refresh_sprite(struct Player *p) {
 	
 }
 
-void player_draw(struct Player *p, int eye) {
-	
-	int x3d = 0;
-	if (eye > 0) { // Right eye
-		x3d = -p->z;
-	}
-	else if (eye < 0) { // Left eye
-		x3d = p->z;
-	}
-	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
-	
-}
-
 void player_controll(struct Player *p, u32 held) {
 	
 	if (p->gravity == 0) {
@@ -160,6 +156,33 @@ void player_controll(struct Player *p, u32 held) {
 			p->vspeed /= 2;
 		}
 	}
+	
+}
+
+void player_move(struct Player *p) {
+	
+	// Jumping or falling
+	if (p->gravity != 0) {
+		// I'm not on the ground yet
+		
+		p->y += p->vspeed;
+		p->vspeed += p->gravity;
+		
+		player_refresh_bbox(p);
+	}
+	
+}
+
+void player_draw(struct Player *p, int eye) {
+	
+	int x3d = 0;
+	if (eye > 0) { // Right eye
+		x3d = -p->z;
+	}
+	else if (eye < 0) { // Left eye
+		x3d = p->z;
+	}
+	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
 	
 }
 

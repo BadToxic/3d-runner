@@ -13,8 +13,10 @@ struct Player {
   int x;
   int y;
   int z;
-  unsigned int width;
-  unsigned int height;
+  int bbox_left;
+  int bbox_right;
+  int bbox_top;
+  int bbox_bottom;
   
   float vspeed;
   float jump_power;
@@ -44,14 +46,18 @@ void player_set_sprite(struct Player*, int);
 
 void player_jump(struct Player*);
 
+void player_refresh_bbox(struct Player*);
+
 struct Player player_create(int, int, int);
 
 
 void player_refresh_sprite(struct Player*);
 
-void player_draw(struct Player*, int);
-
 void player_controll(struct Player*, u32);
+
+void player_move(struct Player*);
+
+void player_draw(struct Player*, int);
 
 void player_destroy(struct Player*);
 
