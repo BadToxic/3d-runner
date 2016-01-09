@@ -1,6 +1,6 @@
 #include "block.h"
 
-struct Block block_create(int x, int y, int z, unsigned int width, unsigned int height) {
+struct Block block_create(float x, float y, float z, unsigned int width, unsigned int height) {
 
 	struct Block b;
 	b.x = x;

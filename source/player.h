@@ -10,9 +10,9 @@
 #define GRAVITY 0.8
 
 struct Player {
-  int x;
-  int y;
-  int z;
+  float x;
+  float y;
+  float z;
   int bbox_left;
   int bbox_right;
   int bbox_top;
@@ -48,7 +48,7 @@ void player_jump(struct Player*);
 
 void player_refresh_bbox(struct Player*);
 
-struct Player player_create(int, int, int);
+struct Player player_create(float, float, float);
 
 
 void player_refresh_sprite(struct Player*);

@@ -82,7 +82,7 @@ void player_refresh_bbox(struct Player *p) {
 	p->bbox_bottom = p->y + 52;
 }
 
-struct Player player_create(int x, int y, int z) {
+struct Player player_create(float x, float y, float z) {
 
 	struct Player p;
 	p.x = x;

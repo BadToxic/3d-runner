@@ -4,9 +4,9 @@
 #include <sf2d.h>
 
 struct Block {
-  int x;
-  int y;
-  int z;
+  float x;
+  float y;
+  float z;
   unsigned int width;
   unsigned int height;
   bool active;
@@ -18,7 +18,7 @@ struct Block {
   //float image_speed;
 };
 
-struct Block block_create(int, int, int, unsigned int, unsigned int);
+struct Block block_create(float, float, float, unsigned int, unsigned int);
 struct Block block_create_inactive();
 
 // void block_refresh_sprite(struct Block*);
