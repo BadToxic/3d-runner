@@ -1,4 +1,4 @@
-// Just load all sprites
+// Just load all player sprites
 
 #include "spr_char_stand.c"
 #include "spr_char_run_1.c"

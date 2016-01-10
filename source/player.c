@@ -5,7 +5,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "img/sprites.c"
+#include "img/player_sprites.c"
 
 
 void player_set_sprite_stand(struct Player *p) {

@@ -57,7 +57,7 @@ int main()
 	}
 
 	// Create start ground
-	for (unsigned int block_index = 0; block_index < 26; block_index++) {
+	for (unsigned int block_index = 0; block_index < 27; block_index++) {
 		blocks[block_index] = block_create(-16 + block_index * 16, 192, 6, 16, 16);
 	}
 
@@ -102,10 +102,12 @@ int main()
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		
+			int left_or_both = -sign(CONFIG_3D_SLIDERSTATE);
+		
 			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
-				block_draw(&blocks[block_index], -1);
+				block_draw(&blocks[block_index], left_or_both);
 			}
-			player_draw(&p1, -1);
+			player_draw(&p1, left_or_both);
 			
 		sf2d_end_frame();
 

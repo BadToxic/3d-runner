@@ -12,4 +12,7 @@ int intToStr(int, char[], int);
 // Converts a floating point number to string.
 void ftoa(float, char*, int);
 
+// Calculates the signum of a number
+int sign(int);
+
 #endif /* UTIL_H */
