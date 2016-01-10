@@ -1,11 +1,24 @@
 #include "block.h"
 
-#include "img/spr_block.c"
 
-struct Block block_create(float x, float y, float z, unsigned int width, unsigned int height) {
+
+struct Block block_create_inactive(sf2d_texture *sprite) {
 
 	struct Block b;
-	b.sprite = sf2d_create_texture_mem_RGBA8(spr_block.pixel_data, spr_block.width, spr_block.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	b.sprite = sprite;
+	b.x = 0;
+	b.y = 0;
+	b.z = 0;
+	b.width = 0;
+	b.height = 0;
+	b.active = false;
+	return b;
+}
+
+struct Block block_create(float x, float y, float z, unsigned int width, unsigned int height, sf2d_texture *sprite) {
+
+	struct Block b;
+	b.sprite = sprite;
 	b.x = x;
 	b.y = y;
 	b.z = z;
@@ -16,18 +29,6 @@ struct Block block_create(float x, float y, float z, unsigned int width, unsigne
 	return b;
 }
 
-struct Block block_create_inactive() {
-
-	struct Block b;
-	b.sprite = sf2d_create_texture_mem_RGBA8(spr_block.pixel_data, spr_block.width, spr_block.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	b.x = 0;
-	b.y = 0;
-	b.z = 0;
-	b.width = 0;
-	b.height = 0;
-	b.active = false;
-	return b;
-}
 
 void block_draw(struct Block *b, float slider_state) {
 	

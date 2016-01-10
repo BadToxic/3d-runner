@@ -145,13 +145,13 @@ void player_refresh_sprite(struct Player *p) {
 }
 
 void player_controll(struct Player *p, u32 held) {
-	
+	bool jump_held = (held & KEY_A) || (held & KEY_L);
 	if (p->gravity == 0) {
-		if (held & KEY_A && p->jump_button_released) {
+		if (jump_held && p->jump_button_released) {
 			player_jump(p);
 		}
 		else {
-			if (!(held & KEY_A)) {
+			if (!jump_held) {
 				p->jump_button_released = true;
 			}
 			
@@ -164,7 +164,7 @@ void player_controll(struct Player *p, u32 held) {
 		}
 	}
 	else if (p->vspeed < 0) { // Still jumping upwards
-		if (!(held & KEY_A)) {	// Slow down upwards movement
+		if (!jump_held) {	// Slow down upwards movement
 			p->vspeed /= 2;
 		}
 	}

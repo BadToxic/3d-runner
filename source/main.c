@@ -8,14 +8,21 @@
 
 #include "util.h"
 #include "block.h"
+#include "img/spr_block.c"
 #include "player.h"
 
 #define CONFIG_3D_SLIDERSTATE (*(float *)0x1FF81080)
 #define ROOM_SPEED 60
 #define BLOCK_NUMBER 64
+#define ROOM_WIDTH 400
+#define ROOM_HEIGHT 240
 
-bool show_debug = true; // Turn this of when not needed
+bool show_debug = false; // Turn this of when not needed
 char debug_string[128];
+
+sf2d_texture *block_sprite;
+const float new_block_counter_max = 16; // Pixels to run by before a new block will be created
+float new_block_counter           = 0; // Pixels to run by before a new block will be created
 
 const float countdown 	  = 0.2; // Time in seconds till the game starts
 const float run_speed_max = 4;
@@ -30,17 +37,19 @@ float run_speed   = 0;
 
 void start_new_game (struct Player *p, struct Block blocks[]) {
 	
+	new_block_counter = 0;
+	
 	time_played = 0;
 	run_speed   = 0;
 	
 	
 	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
-		blocks[block_index] = block_create_inactive();
+		blocks[block_index] = block_create_inactive(block_sprite);
 	}
 
 	// Create start ground
 	for (unsigned int block_index = 0; block_index < 27; block_index++) {
-		blocks[block_index] = block_create(-16 + block_index * 16, 192, 6, 16, 16);
+		blocks[block_index] = block_create(-16 + block_index * 16, 192, 6, 16, 16, block_sprite);
 	}
 	
 	p->x = player_x_start;
@@ -86,20 +95,19 @@ void player_check_collision(struct Player *p, struct Block blocks[]) {
 }
 
 
-int main()
-{
+int main() {
+
 	// Set the random seed based on the time
 	srand(time(NULL));
-
-	
 
 	//gfxInitDefault();
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 	sf2d_set_3D(1);
 
+	block_sprite = sf2d_create_texture_mem_RGBA8(spr_block.pixel_data, spr_block.width, spr_block.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	struct Block blocks[BLOCK_NUMBER];
-
+	
 
 	struct Player p1 = player_create();
 	start_new_game(&p1, blocks);
@@ -134,17 +142,38 @@ int main()
 
 		if (held & KEY_START) {
 			break;
-		} else if (held & KEY_B) { // Set player back to start position (for testing)
+		} else if (held & KEY_SELECT) { // Set player back to start position (for testing)
 		
 			start_new_game(&p1, blocks);
 			
 			// Show current time: test
 			getTimeString(debug_string, current_time);
 			
-			
-		} /*else if (held & (KEY_L | KEY_R)) {
-			sf2d_set_clear_color(RGBA8(rand() % 255, rand() % 255, rand() % 255, 255));
-		}*/
+		}
+		
+		// Move blocks
+		for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+			if (blocks[block_index].active) {
+				blocks[block_index].x -= run_speed;
+				if (blocks[block_index].x < -((float) blocks[block_index].width) - 16) {
+					blocks[block_index].active = false;
+				}
+			}
+		}
+		// Create new blocks
+		if (new_block_counter > new_block_counter_max) {
+			// Search first empty position in array
+			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+				if (!blocks[block_index].active) {
+					blocks[block_index] = block_create(ROOM_WIDTH, 192, 6, 16, 16, block_sprite);
+					blocks[block_index].x -= ((int) blocks[block_index].x) % 16;
+					break;
+				}	
+			}
+			new_block_counter -= new_block_counter_max;
+		}
+		new_block_counter += run_speed;
+		ftoa(run_speed, debug_string, 2);
 		
 		// Player controlling
 		player_controll(&p1, held);

@@ -13,8 +13,8 @@ struct Block {
   bool active;
 };
 
-struct Block block_create(float, float, float, unsigned int, unsigned int);
-struct Block block_create_inactive();
+struct Block block_create_inactive(sf2d_texture *);
+struct Block block_create(float, float, float, unsigned int, unsigned int, sf2d_texture *);
 
 void block_draw(struct Block*, float);
 
