@@ -3,11 +3,15 @@
 
 #include <sf2d.h>
 
-#define ANIMATION_STAND 0
-#define ANIMATION_RUN   1
-#define ANIMATION_JUMP  2
+#define ANIMATION_STAND    0
+#define ANIMATION_RUN      1
+#define ANIMATION_JUMP     2
+#define ANIMATION_JUMPKICK 3
+#define ANIMATION_SLIDE    4
 
 #define GRAVITY 0.8
+
+#define SLIDE_TIME_MAX 1
 
 struct Player {
   float x;
@@ -22,6 +26,8 @@ struct Player {
   float jump_power;
   float gravity;
   bool jump_button_released;
+  bool slide_button_released;
+  float slide_counter;
   
   int animation_id;
   sf2d_texture *sprite;
@@ -32,6 +38,10 @@ struct Player {
   sf2d_texture *sprite_run[8];
   unsigned int sprite_jump_image_number;
   sf2d_texture *sprite_jump[8];
+  unsigned int sprite_jumpkick_image_number;
+  sf2d_texture *sprite_jumpkick[8];
+  unsigned int sprite_slide_image_number;
+  sf2d_texture *sprite_slide[8];
   unsigned int image_number;
   unsigned int image_index;
   float image_index_counter;

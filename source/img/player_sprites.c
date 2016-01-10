@@ -9,3 +9,5 @@
 #include "spr_char_run_6.c"
 #include "spr_char_jump_1.c"
 #include "spr_char_jump_2.c"
+#include "spr_char_jumpkick.c"
+#include "spr_char_slide.c"

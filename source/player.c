@@ -49,6 +49,33 @@ void player_set_sprite_jump(struct Player *p) {
 	}
 	
 }
+void player_set_sprite_jumpkick(struct Player *p) {
+
+	if (p->animation_id != ANIMATION_JUMPKICK) {
+		p->animation_id = ANIMATION_JUMPKICK;
+		memcpy(p->sprite_array, p->sprite_jumpkick, sizeof p->sprite_jumpkick);
+		p->sprite       = p->sprite_array[0];
+		p->image_number = p->sprite_jumpkick_image_number;
+		p->image_index  = 0;
+		p->image_index_counter = 0;
+		p->image_speed  = 0;
+	}
+	
+}
+
+void player_set_sprite_slide(struct Player *p) {
+
+	if (p->animation_id != ANIMATION_SLIDE) {
+		p->animation_id = ANIMATION_SLIDE;
+		memcpy(p->sprite_array, p->sprite_slide, sizeof p->sprite_slide);
+		p->sprite       = p->sprite_array[0];
+		p->image_number = p->sprite_slide_image_number;
+		p->image_index  = 0;
+		p->image_index_counter = 0;
+		p->image_speed  = 0;
+	}
+	
+}
 
 void player_set_sprite(struct Player *p, int animation_id) {
 
@@ -61,6 +88,12 @@ void player_set_sprite(struct Player *p, int animation_id) {
 		}
 		else if (animation_id == ANIMATION_JUMP) {
 			player_set_sprite_jump(p);
+		}
+		else if (animation_id == ANIMATION_JUMPKICK) {
+			player_set_sprite_jumpkick(p);
+		}
+		else if (animation_id == ANIMATION_SLIDE) {
+			player_set_sprite_slide(p);
 		}
 	}
 	
@@ -94,7 +127,9 @@ struct Player player_create() {
 	p.vspeed     = 0;
     p.gravity    = 0;
 	p.jump_power = 12;
-	p.jump_button_released = true;
+	p.jump_button_released  = true;
+	p.slide_button_released = true;
+	p.slide_counter = 0;
 	
 	p.sprite_stand_image_number = 1;
 	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
@@ -108,6 +143,11 @@ struct Player player_create() {
 	p.sprite_jump_image_number = 2;
 	p.sprite_jump[0] = sf2d_create_texture_mem_RGBA8(spr_char_jump_1.pixel_data, spr_char_jump_1.width, spr_char_jump_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	p.sprite_jump[1] = sf2d_create_texture_mem_RGBA8(spr_char_jump_2.pixel_data, spr_char_jump_2.width, spr_char_jump_2.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	p.sprite_jumpkick_image_number = 1;
+	p.sprite_jumpkick[0] = sf2d_create_texture_mem_RGBA8(spr_char_jumpkick.pixel_data, spr_char_jumpkick.width, spr_char_jumpkick.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	p.sprite_slide_image_number = 1;
+	p.sprite_slide[0] = sf2d_create_texture_mem_RGBA8(spr_char_slide.pixel_data, spr_char_slide.width, spr_char_slide.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	
 	
 	p.animation_id = -1;
 	player_set_sprite(&p, ANIMATION_STAND);
@@ -145,7 +185,9 @@ void player_refresh_sprite(struct Player *p) {
 }
 
 void player_controll(struct Player *p, u32 held) {
-	bool jump_held = (held & KEY_A) || (held & KEY_L);
+	bool jump_held = (held & KEY_A) || (held & KEY_L) || (held & KEY_UP);
+	bool jumpkick_held = (held & KEY_B) || (held & KEY_RIGHT);
+	bool slide_held = (held & KEY_B) || (held & KEY_DOWN);
 	if (p->gravity == 0) {
 		if (jump_held && p->jump_button_released) {
 			player_jump(p);
@@ -154,20 +196,40 @@ void player_controll(struct Player *p, u32 held) {
 			if (!jump_held) {
 				p->jump_button_released = true;
 			}
-			
-			/*if (held & KEY_RIGHT) {
+			if (slide_held && p->slide_button_released) {
+				player_set_sprite(p, ANIMATION_SLIDE);
+				p->slide_button_released = false;
+				p->slide_counter = SLIDE_TIME_MAX;
+			}
+			else if (!slide_held && !p->slide_button_released) {
+				p->slide_button_released = true;
 				player_set_sprite(p, ANIMATION_RUN);
 			}
-			else {
-				player_set_sprite(p, ANIMATION_STAND);
-			}*/
+			else if (slide_held && !p->slide_button_released) {
+				if (p->slide_counter > 0) {
+					p->slide_counter -= 1 / ((float)60);
+				}
+				else {
+					player_set_sprite(p, ANIMATION_RUN);
+				}
+			}
 		}
 	}
-	else if (p->vspeed < 0) { // Still jumping upwards
-		if (!jump_held) {	// Slow down upwards movement
-			p->vspeed /= 2;
+	else {
+		p->slide_button_released = true;
+		if (p->vspeed < 0) { // Still jumping upwards
+			if (!jump_held) {	// Slow down upwards movement
+				p->vspeed /= 2;
+			}
+		}		
+		if (jumpkick_held) {
+			player_set_sprite(p, ANIMATION_JUMPKICK);
+		}
+		else {
+			player_set_sprite(p, ANIMATION_JUMP);
 		}
 	}
+	
 	
 }
 
@@ -188,12 +250,6 @@ void player_move(struct Player *p) {
 void player_draw(struct Player *p, float slider_state) {
 	
 	float x3d = p->z * slider_state;
-	/*if (slider_state > 0) { // Right eye
-		x3d = -p->z;
-	}
-	else if (slider_state < 0) { // Left eye
-		x3d = p->z;
-	}*/
 	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
 	
 }
