@@ -82,12 +82,12 @@ void player_refresh_bbox(struct Player *p) {
 	p->bbox_bottom = p->y + 52;
 }
 
-struct Player player_create(float x, float y, float z) {
+struct Player player_create() {
 
 	struct Player p;
-	p.x = x;
-	p.y = y;
-	p.z = z;
+	p.x = 0;
+	p.y = 0;
+	p.z = 0;
 	
 	player_refresh_bbox(&p);	
 	
@@ -111,6 +111,18 @@ struct Player player_create(float x, float y, float z) {
 	
 	p.animation_id = -1;
 	player_set_sprite(&p, ANIMATION_STAND);
+	
+	return p;
+}
+
+struct Player player_create_position(float x, float y, float z) {
+
+	struct Player p = player_create();
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	
+	player_refresh_bbox(&p);	
 	
 	return p;
 }
@@ -143,12 +155,12 @@ void player_controll(struct Player *p, u32 held) {
 				p->jump_button_released = true;
 			}
 			
-			if (held & KEY_RIGHT) {
+			/*if (held & KEY_RIGHT) {
 				player_set_sprite(p, ANIMATION_RUN);
 			}
 			else {
 				player_set_sprite(p, ANIMATION_STAND);
-			}
+			}*/
 		}
 	}
 	else if (p->vspeed < 0) { // Still jumping upwards
@@ -173,15 +185,15 @@ void player_move(struct Player *p) {
 	
 }
 
-void player_draw(struct Player *p, int eye) {
+void player_draw(struct Player *p, float slider_state) {
 	
-	int x3d = 0;
-	if (eye > 0) { // Right eye
+	float x3d = p->z * slider_state;
+	/*if (slider_state > 0) { // Right eye
 		x3d = -p->z;
 	}
-	else if (eye < 0) { // Left eye
+	else if (slider_state < 0) { // Left eye
 		x3d = p->z;
-	}
+	}*/
 	sf2d_draw_texture(p->sprite, p->x + x3d, p->y);
 	
 }

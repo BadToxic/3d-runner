@@ -48,7 +48,8 @@ void player_jump(struct Player*);
 
 void player_refresh_bbox(struct Player*);
 
-struct Player player_create(float, float, float);
+struct Player player_create();
+struct Player player_create_position(float, float, float);
 
 
 void player_refresh_sprite(struct Player*);
@@ -57,7 +58,7 @@ void player_controll(struct Player*, u32);
 
 void player_move(struct Player*);
 
-void player_draw(struct Player*, int);
+void player_draw(struct Player*, float);
 
 void player_destroy(struct Player*);
 

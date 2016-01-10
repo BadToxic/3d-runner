@@ -16,7 +16,7 @@ struct Block {
 struct Block block_create(float, float, float, unsigned int, unsigned int);
 struct Block block_create_inactive();
 
-void block_draw(struct Block*, int);
+void block_draw(struct Block*, float);
 
 void block_destroy(struct Block*);
 

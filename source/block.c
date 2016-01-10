@@ -29,16 +29,16 @@ struct Block block_create_inactive() {
 	return b;
 }
 
-void block_draw(struct Block *b, int eye) {
+void block_draw(struct Block *b, float slider_state) {
 	
 	if (b->active) {
-		int x3d = 0;
-		if (eye > 0) { // Right eye
+		float x3d = b->z * slider_state;
+		/*if (slider_state > 0) { // Right eye
 			x3d = -b->z;
 		}
-		else if (eye < 0) { // Left eye
+		else if (slider_state < 0) { // Left eye
 			x3d = b->z;
-		}
+		}*/
 		// sf2d_draw_rectangle(b->x + x3d, b->y, b->width, b->height, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
 		sf2d_draw_texture(b->sprite, b->x + x3d, b->y);
 	}
