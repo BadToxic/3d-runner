@@ -1,6 +1,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <time.h>
+
 // reverses a string 'str' of length 'len'
 void reverse(char*, int);
 
@@ -14,5 +16,8 @@ void ftoa(float, char*, int);
 
 // Calculates the signum of a number
 int sign(int);
+
+// Write time to a string
+void getTimeString(char[], struct tm*);
 
 #endif /* UTIL_H */

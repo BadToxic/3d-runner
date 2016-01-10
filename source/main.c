@@ -46,6 +46,8 @@ int main()
 	// Set the random seed based on the time
 	srand(time(NULL));
 
+	// float run_speed = 0;
+
 	//gfxInitDefault();
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
@@ -69,6 +71,9 @@ int main()
 
 	while (aptMainLoop()) {
 
+		time_t unixTime = time(NULL);
+		struct tm* current_time = gmtime((const time_t *)&unixTime);
+
 		hidScanInput();
 		held = hidKeysHeld();
 
@@ -84,10 +89,16 @@ int main()
 			p1.jump_button_released = true;
 			player_refresh_bbox(&p1);
 			
+			
+			// Show current time - test
+			getTimeString(debug_string, current_time);
+			
+			
 		} else if (held & (KEY_L | KEY_R)) {
-			sf2d_set_clear_color(RGBA8(rand()%255, rand()%255, rand()%255, 255));
+			sf2d_set_clear_color(RGBA8(rand() % 255, rand() % 255, rand() % 255, 255));
 		}
 		
+
 		
 		player_controll(&p1, held);
 

@@ -1,4 +1,5 @@
 #include "util.h"
+#include <string.h>
 #include<math.h>
 // reverses a string 'str' of length 'len'
 void reverse(char *str, int len) {
@@ -74,4 +75,21 @@ int sign(int n) {
 	else {
 		return 0;
 	}
+}
+
+// Write time to a string
+void getTimeString(char time_string[], struct tm *time) {
+
+    char hour_string[2];
+	char min_string[2];
+	char sec_string[2];
+	intToStr(time->tm_hour, hour_string, 2);
+	intToStr(time->tm_min, min_string, 2);
+	intToStr(time->tm_sec, sec_string, 2);
+	strcpy(time_string, hour_string);
+	strcat(time_string, ":");
+	strcat(time_string, min_string);
+	strcat(time_string, ".");
+	strcat(time_string, sec_string);
+	
 }
