@@ -17,10 +17,10 @@ struct Player {
   float x;
   float y;
   float z;
-  int bbox_left;
-  int bbox_right;
-  int bbox_top;
-  int bbox_bottom;
+  float bbox_left;
+  float bbox_right;
+  float bbox_top;
+  float bbox_bottom;
   
   float vspeed;
   float jump_power;
@@ -28,6 +28,7 @@ struct Player {
   bool jump_button_released;
   bool slide_button_released;
   float slide_counter;
+  bool playable;
   
   int animation_id;
   sf2d_texture *sprite;
@@ -55,6 +56,7 @@ void player_set_sprite_jump(struct Player*);
 void player_set_sprite(struct Player*, int);
 
 void player_jump(struct Player*);
+void player_fall(struct Player*);
 
 void player_refresh_bbox(struct Player*);
 

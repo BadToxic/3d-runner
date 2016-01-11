@@ -107,6 +107,12 @@ void player_jump(struct Player *p) {
 		p->jump_button_released = false;
 	}
 }
+void player_fall(struct Player *p) {
+	if (p->animation_id != ANIMATION_JUMP) {
+		player_set_sprite(p, ANIMATION_JUMP);
+		p->gravity = GRAVITY;
+	}
+}
 
 void player_refresh_bbox(struct Player *p) {
 	p->bbox_left   = p->x + 23;
@@ -130,6 +136,7 @@ struct Player player_create() {
 	p.jump_button_released  = true;
 	p.slide_button_released = true;
 	p.slide_counter = 0;
+	p.playable   = true;
 	
 	p.sprite_stand_image_number = 1;
 	p.sprite_stand[0] = sf2d_create_texture_mem_RGBA8(spr_char_stand.pixel_data, spr_char_stand.width, spr_char_stand.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
@@ -185,52 +192,55 @@ void player_refresh_sprite(struct Player *p) {
 }
 
 void player_controll(struct Player *p, u32 held) {
-	bool jump_held = (held & KEY_A) || (held & KEY_L) || (held & KEY_UP);
-	bool jumpkick_held = (held & KEY_B) || (held & KEY_RIGHT);
-	bool slide_held = (held & KEY_B) || (held & KEY_DOWN);
-	if (p->gravity == 0) {
-		if (jump_held && p->jump_button_released) {
-			player_jump(p);
-		}
-		else {
-			if (!jump_held) {
-				p->jump_button_released = true;
+
+	if (p->playable) {
+
+		bool jump_held = (held & KEY_A) || (held & KEY_L) || (held & KEY_UP);
+		bool jumpkick_held = (held & KEY_B) || (held & KEY_RIGHT);
+		bool slide_held = (held & KEY_B) || (held & KEY_DOWN);
+		if (p->gravity == 0) {
+			if (jump_held && p->jump_button_released) {
+				player_jump(p);
 			}
-			if (slide_held && p->slide_button_released) {
-				player_set_sprite(p, ANIMATION_SLIDE);
-				p->slide_button_released = false;
-				p->slide_counter = SLIDE_TIME_MAX;
-			}
-			else if (!slide_held && !p->slide_button_released) {
-				p->slide_button_released = true;
-				player_set_sprite(p, ANIMATION_RUN);
-			}
-			else if (slide_held && !p->slide_button_released) {
-				if (p->slide_counter > 0) {
-					p->slide_counter -= 1 / ((float)60);
+			else {
+				if (!jump_held) {
+					p->jump_button_released = true;
 				}
-				else {
+				if (slide_held && p->slide_button_released) {
+					player_set_sprite(p, ANIMATION_SLIDE);
+					p->slide_button_released = false;
+					p->slide_counter = SLIDE_TIME_MAX;
+				}
+				else if (!slide_held && !p->slide_button_released) {
+					p->slide_button_released = true;
 					player_set_sprite(p, ANIMATION_RUN);
 				}
+				else if (slide_held && !p->slide_button_released) {
+					if (p->slide_counter > 0) {
+						p->slide_counter -= 1 / ((float)60);
+					}
+					else {
+						player_set_sprite(p, ANIMATION_RUN);
+					}
+				}
 			}
-		}
-	}
-	else {
-		p->slide_button_released = true;
-		if (p->vspeed < 0) { // Still jumping upwards
-			if (!jump_held) {	// Slow down upwards movement
-				p->vspeed /= 2;
-			}
-		}		
-		if (jumpkick_held) {
-			player_set_sprite(p, ANIMATION_JUMPKICK);
 		}
 		else {
-			player_set_sprite(p, ANIMATION_JUMP);
+			p->slide_button_released = true;
+			if (p->vspeed < 0) { // Still jumping upwards
+				if (!jump_held) {	// Slow down upwards movement
+					p->vspeed /= 2;
+				}
+			}		
+			if (jumpkick_held) {
+				player_set_sprite(p, ANIMATION_JUMPKICK);
+			}
+			else {
+				player_set_sprite(p, ANIMATION_JUMP);
+			}
 		}
+		
 	}
-	
-	
 }
 
 void player_move(struct Player *p) {

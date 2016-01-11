@@ -21,24 +21,39 @@ bool show_debug = false; // Turn this of when not needed
 char debug_string[128];
 
 sf2d_texture *block_sprite;
-const float new_block_counter_max = 16; // Pixels to run by before a new block will be created
-float new_block_counter           = 0; // Pixels to run by before a new block will be created
+const float new_block_counter_max    = 16;  // Pixels to run by before a new block will be created
+float new_block_counter              = 0;   // Pixels to run by before a new block will be created
+const unsigned int new_block_y_start = 192; // y coordinate the blocks will start to be generated
+float new_block_y           	     = 0;
+unsigned int blocks_following_min    = 0;
+unsigned int blocks_following_max    = 0;
+unsigned int blocks_following        = 0;
+unsigned int empty_following_min     = 0;
+unsigned int empty_following_max     = 0;
+unsigned int empty_following         = 0;
+bool next_is_block = true;
 
 const float countdown 	  = 0.2; // Time in seconds till the game starts
 const float run_speed_max = 4;
 const float run_speed_inc = 0.01;
 const int player_x_start  = 32;
-const int player_y_start  = 138;
+const int player_y_start  = 140;
 const int player_z_start  = 8;
 
 
 float time_played = 0; // Passed time in seconds
 float run_speed   = 0;
 
+bool game_over = false;
+
 void start_new_game (struct Player *p, struct Block blocks[]) {
 	
+	game_over = false;
 	new_block_counter = 0;
-	
+	new_block_y       = new_block_y_start;
+	blocks_following_min    = 20;
+	blocks_following_max    = 20;
+		
 	time_played = 0;
 	run_speed   = 0;
 	
@@ -49,7 +64,7 @@ void start_new_game (struct Player *p, struct Block blocks[]) {
 
 	// Create start ground
 	for (unsigned int block_index = 0; block_index < 27; block_index++) {
-		blocks[block_index] = block_create(-16 + block_index * 16, 192, 6, 16, 16, block_sprite);
+		blocks[block_index] = block_create(-16 + block_index * 16, new_block_y, 6, 16, 16, block_sprite);
 	}
 	
 	p->x = player_x_start;
@@ -64,16 +79,73 @@ void start_new_game (struct Player *p, struct Block blocks[]) {
 	
 }
 
+
+void generate_new_blocks(struct Block blocks[]) {
+
+	// Decide if new block has to be generated
+	
+	if (next_is_block) {
+		if (blocks_following >= blocks_following_max) {
+			next_is_block = false;
+		}
+		else if (blocks_following >= blocks_following_min) {
+			if (round(rand() % 2) == 0) {
+				next_is_block = false;
+			}
+		}
+		if (!next_is_block) { // Changed
+			blocks_following    = 0;
+			empty_following_min = 2;
+			empty_following_max = 6;
+		}
+	}
+	else if (!next_is_block) {
+		if (empty_following >= empty_following_max) {
+			next_is_block = true;
+		}
+		else if (empty_following >= empty_following_min) {
+			if (round(rand() % 2) == 0) {
+				next_is_block = true;
+			}
+		}
+		if (next_is_block) { // Changed
+			empty_following      = 0;
+			blocks_following_min = 6;
+			blocks_following_max = 16;
+		}
+	}
+	
+	if (next_is_block) {
+		// Search first empty position in array
+		for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+			if (!blocks[block_index].active) {
+				blocks[block_index] = block_create(ROOM_WIDTH, new_block_y, 6, 16, 16, block_sprite);
+				blocks[block_index].x -= ((int) blocks[block_index].x) % 16;
+				break;
+			}	
+		}
+		/*blocks_following_min    = 6;
+		blocks_following_max    = 16;
+		empty_following_min     = 2;
+		empty_following_max     = 4;*/
+		
+		blocks_following++;
+	}
+	else {
+	
+	
+		empty_following++;
+	}
+}
+
 void player_check_collision(struct Player *p, struct Block blocks[]) {
 	
-	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+	if (p->vspeed > 0) { // While falling
 	
-		if (blocks[block_index].active) {
-		
-			if (blocks[block_index].x < p->bbox_right && blocks[block_index].x + blocks[block_index].width > p->bbox_left) { // Collision posible
+		for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+			if (blocks[block_index].active) {
+				if (blocks[block_index].x < p->bbox_right && blocks[block_index].x + blocks[block_index].width > p->bbox_left) { // Collision posible
 			
-				if (p->vspeed > 0) { // While falling
-					
 					// Landing on ground
 					if (blocks[block_index].y <= p->bbox_bottom && blocks[block_index].y + blocks[block_index].height > p->bbox_bottom) {
 						p->vspeed  = 0;
@@ -85,10 +157,31 @@ void player_check_collision(struct Player *p, struct Block blocks[]) {
 							player_set_sprite(p, ANIMATION_RUN);
 						}
 						p->y += blocks[block_index].y - p->bbox_bottom;
+						player_refresh_bbox(p);
 					}
 				
 				}
 			}
+		}
+		
+	}
+	else if (p->vspeed == 0) { // While walking
+		bool on_ground = false;
+		for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+			if (blocks[block_index].active) {
+				if (blocks[block_index].x < p->bbox_right && blocks[block_index].x + blocks[block_index].width > p->bbox_left) { // Collision posible
+			
+					// Loosing ground
+					if (blocks[block_index].y <= p->bbox_bottom && blocks[block_index].y + blocks[block_index].height > p->bbox_bottom) {
+						on_ground = true;
+						break;
+					}
+				
+				}
+			}
+		}
+		if (!on_ground) {
+			player_fall(p);
 		}
 	}
 	
@@ -118,25 +211,8 @@ int main() {
 
 		time_t unixTime = time(NULL);
 		struct tm* current_time = gmtime((const time_t *)&unixTime);
-		time_played += 1 / (float)ROOM_SPEED;
-
-		if (time_played > countdown) { // Start running after this time in seconds
-			if (run_speed < run_speed_max) {
-				if (run_speed < 1) {
-					if (run_speed == 0) { // Start run animation
-						if (p1.animation_id == ANIMATION_STAND) {
-							player_set_sprite(&p1, ANIMATION_RUN);
-						}
-					}
-					run_speed += run_speed_inc * 4;
-				}
-				else {
-					run_speed += run_speed_inc;
-				}
-			}
-		}
-		// ftoa(time_played, debug_string, 2);
 		
+		// Main controll
 		hidScanInput();
 		held = hidKeysHeld();
 
@@ -151,6 +227,38 @@ int main() {
 			
 		}
 		
+		
+		if (!game_over) {
+			time_played += 1 / (float)ROOM_SPEED;
+
+			if (time_played > countdown) { // Start running after this time in seconds
+				if (run_speed < run_speed_max) {
+					if (run_speed < 1) {
+						if (run_speed == 0) { // Start run animation
+							if (p1.animation_id == ANIMATION_STAND) {
+								player_set_sprite(&p1, ANIMATION_RUN);
+							}
+						}
+						run_speed += run_speed_inc * 4;
+					}
+					else {
+						run_speed += run_speed_inc;
+					}
+				}
+			}
+			// ftoa(time_played, debug_string, 2);
+		
+		}
+		else {
+			if (run_speed > 0) {
+				run_speed -= run_speed_inc;
+				if (run_speed < 0) {
+					run_speed = 0;
+				}
+			}
+		}
+		
+		
 		// Move blocks
 		for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 			if (blocks[block_index].active) {
@@ -160,35 +268,34 @@ int main() {
 				}
 			}
 		}
+		
 		// Create new blocks
 		if (new_block_counter > new_block_counter_max) {
-			// Search first empty position in array
-			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
-				if (!blocks[block_index].active) {
-					blocks[block_index] = block_create(ROOM_WIDTH, 192, 6, 16, 16, block_sprite);
-					blocks[block_index].x -= ((int) blocks[block_index].x) % 16;
-					break;
-				}	
-			}
+			generate_new_blocks(blocks);
 			new_block_counter -= new_block_counter_max;
 		}
 		new_block_counter += run_speed;
-		ftoa(run_speed, debug_string, 2);
+		// ftoa(run_speed, debug_string, 2);
 		
-		// Player controlling
-		player_controll(&p1, held);
+		if (!game_over) {
+			// Player controlling
+			player_controll(&p1, held);
 
-		player_refresh_sprite(&p1);
-		if (p1.animation_id == ANIMATION_RUN) {
-			p1.image_speed = run_speed / 16;
+			player_refresh_sprite(&p1);
+			if (p1.animation_id == ANIMATION_RUN) {
+				p1.image_speed = run_speed / 16;
+			}
+			
+			// Player movement
+			player_move(&p1);
+			
+			// Check if player lands on ground or crashes against blocks
+			player_check_collision(&p1, blocks);
+			
+			if (p1.y > ROOM_HEIGHT) {
+				game_over = true;
+			}
 		}
-		
-		// Player movement
-		player_move(&p1);
-		
-		// Check if player lands on ground or crashes against blocks
-		player_check_collision(&p1, blocks);
-		
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		
