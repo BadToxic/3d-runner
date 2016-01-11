@@ -18,11 +18,11 @@ Currently every firmware version of the _3DS_ family is supported (today's versi
 The player is automatically running to the right, speeding up at the beginning. From time to time gaps in the ground will appear the player has to jump over. If he falls down out of the screen, the game is over.
 
 **Controlls:**
-_Jump_ (While on ground): **A**, **UP**, **L**
-_Jumpkick_ (While in the air): **B**, **RIGHT**
-_Slide_ (While on ground): **B**, **DOWN**
-_Restart_: **SELECT**
-_Quit_: **START**
+- _Jump_ (While on ground): **A**, **UP**, **L**
+- _Jumpkick_ (While in the air): **B**, **RIGHT**
+- _Slide_ (While on ground): **B**, **DOWN**
+- _Restart_: **SELECT**
+- _Quit_: **START**
 
 ## What you need for coding and building
 
