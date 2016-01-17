@@ -13,6 +13,17 @@ This "soft" way of hacking is not dangerous or illegal. It won't damage your dev
 These hacks are using exploits in games or in the intern browser to run some code from your (micro) SD card that is able to launch other applications - the homebrew launcher.
 Currently every firmware version of the _3DS_ family is supported (today's version is _10.3.0-28_).
 
+## How to play
+
+The player is automatically running to the right, speeding up at the beginning. From time to time gaps in the ground will appear the player has to jump over. If he falls down out of the screen, the game is over.
+
+**Controlls:**
+- _Jump_ (While on ground): **A**, **UP**, **L**
+- _Jumpkick_ (While in the air): **B**, **RIGHT**
+- _Slide_ (While on ground): **B**, **DOWN**
+- _Restart_: **SELECT**
+- _Quit_: **START**
+
 ## What you need for coding and building
 
 If you want to setup your machine for developing you can start here: http://www.3dbrew.org/wiki/Setting_up_Development_Environment
