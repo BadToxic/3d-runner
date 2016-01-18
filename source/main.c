@@ -199,7 +199,7 @@ int main() {
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 	sf2d_set_3D(1);
 
-	// struct Font fnt = font_create();
+	struct Font fnt = font_create();
 
 	block_sprite = sf2d_create_texture_mem_RGBA8(spr_block.pixel_data, spr_block.width, spr_block.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	struct Block blocks[BLOCK_NUMBER];
@@ -302,7 +302,7 @@ int main() {
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		
-			// draw_text(&fnt);
+			draw_time(&fnt, time_played, 20, 20);
 		
 			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], CONFIG_3D_SLIDERSTATE);
@@ -314,7 +314,7 @@ int main() {
 
 		sf2d_start_frame(GFX_TOP, GFX_RIGHT);
 
-			// draw_text(&fnt);
+			draw_time(&fnt, time_played, 20, 20);
 
 			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], -CONFIG_3D_SLIDERSTATE);
