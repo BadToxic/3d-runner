@@ -51,3 +51,33 @@ void draw_time(struct Font *f, float seconds, unsigned int x, unsigned int y) {
 	sf2d_draw_texture(f->num[c % 10], x, y); x += f->w;
 	
 }
+
+// Draws a positiv float number from the right to the left.
+void draw_float(struct Font *f, float number, unsigned int decimal_places, unsigned int x, unsigned int y) {
+
+	if (decimal_places > 0) {
+		unsigned int repeats = decimal_places;
+		while (repeats > 0) {
+			number *= 10;
+			repeats--;
+		}
+		while (decimal_places > 0) {
+			sf2d_draw_texture(f->num[(int)number % 10], x, y); x -= f->w;
+			number /= 10;
+			decimal_places--;
+		}
+		sf2d_draw_texture(f->dot, x, y); x -= f->w;
+		
+	}
+
+
+	if (number >= 1) {
+		while (number >= 1) {
+			sf2d_draw_texture(f->num[(int)number % 10], x, y); x -= f->w;
+			number /= 10;
+		}
+	}
+	else {
+		sf2d_draw_texture(f->num[0], x, y);
+	}	
+}

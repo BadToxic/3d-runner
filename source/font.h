@@ -16,4 +16,6 @@ struct Font font_create();
 
 void draw_time(struct Font*, float, unsigned int, unsigned int);
 
+void draw_float(struct Font*, float, unsigned int, unsigned int, unsigned int);
+
 #endif /* FONT_H */
