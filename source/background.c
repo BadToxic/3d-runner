@@ -19,7 +19,7 @@ struct Background background_create(float x, float y, float z, unsigned int widt
 void background_draw(struct Background *b, float slider_state) {
 	
 	float x3d = b->z * slider_state;
-	if (b->x <= -1 * (float)b->width) {
+	if (b->x <= -1 * (float)b->width - 32) {
 		b->x += b->width;
 	}
 	

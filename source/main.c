@@ -10,6 +10,7 @@
 
 #include "img/background_sprites.c"
 #include "background.h"
+#include "img/spr_controlls.c"
 #include "font.h"
 #include "block.h"
 #include "img/spr_block.c"
@@ -17,15 +18,17 @@
 
 #define CONFIG_3D_SLIDERSTATE (*(float *)0x1FF81080)
 #define ROOM_SPEED 60
-#define BACKGROUND_NUMBER 2
+#define BACKGROUND_NUMBER 3
+#define FOREGROUND_NUMBER 1
 #define BLOCK_NUMBER 64
 #define ROOM_WIDTH 412
 #define ROOM_HEIGHT 240
 
-bool show_debug = true; // Turn this of when not needed
+bool show_debug = false; // Turn this of when not needed
 float debug_float = 0;
 char debug_string[128];
 
+sf2d_texture *controlls;
 sf2d_texture *block_sprite;
 const float new_block_counter_max    = 16;  // Pixels to run by before a new block will be created
 float new_block_counter              = 0;   // Pixels to run by before a new block will be created
@@ -219,14 +222,23 @@ int main() {
 	// Backgrounds
 	struct Background backgrounds[BACKGROUND_NUMBER];
 	if (BACKGROUND_NUMBER > 0) {
-		backgrounds[0] = background_create(0, 0, 0, 512, 240, 0.8, sf2d_create_texture_mem_RGBA8(spr_background_1.pixel_data, spr_background_1.width, spr_background_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM));
+		backgrounds[0] = background_create(0, 128, 0, 512, 128, 0.8, sf2d_create_texture_mem_RGBA8(spr_background_1.pixel_data, spr_background_1.width, spr_background_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM));
 		if (BACKGROUND_NUMBER > 1) {
 			backgrounds[1] = background_create(0, 0, -12, 512, 240, 0.4, sf2d_create_texture_mem_RGBA8(spr_background_2.pixel_data, spr_background_2.width, spr_background_2.height, TEXFMT_RGBA8, SF2D_PLACE_RAM));
+			if (BACKGROUND_NUMBER > 2) {
+				backgrounds[2] = background_create(0, 0, 0, 412, 128, 0, sf2d_create_texture_mem_RGBA8(spr_background_static.pixel_data, spr_background_static.width, spr_background_static.height, TEXFMT_RGBA8, SF2D_PLACE_RAM));
+			}
 		}
+	}
+	// Foregrounds
+	struct Background foregrounds[FOREGROUND_NUMBER];
+	if (FOREGROUND_NUMBER > 0) {
+		foregrounds[0] = background_create(0, 208, 16, 512, 32, 1.2, sf2d_create_texture_mem_RGBA8(spr_foreground_1.pixel_data, spr_foreground_1.width, spr_foreground_1.height, TEXFMT_RGBA8, SF2D_PLACE_RAM));
 	}
 
 	struct Font fnt = font_create();
 
+	controlls = sf2d_create_texture_mem_RGBA8(spr_controlls.pixel_data, spr_controlls.width, spr_controlls.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	block_sprite = sf2d_create_texture_mem_RGBA8(spr_block.pixel_data, spr_block.width, spr_block.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	struct Block blocks[BLOCK_NUMBER];
 	
@@ -289,7 +301,16 @@ int main() {
 		
 		// Move backgrounds
 		for (unsigned int background_index = 0; background_index < BACKGROUND_NUMBER; background_index++) {
-			backgrounds[background_index].x -= run_speed * backgrounds[background_index].speed;
+			if (backgrounds[background_index].speed != 0) {
+				backgrounds[background_index].x -= run_speed * backgrounds[background_index].speed;
+			}
+		}
+		
+		// Move foregrounds
+		for (unsigned int foreground_index = 0; foreground_index < FOREGROUND_NUMBER; foreground_index++) {
+			if (foregrounds[foreground_index].speed != 0) {
+				foregrounds[foreground_index].x -= run_speed * foregrounds[foreground_index].speed;
+			}
 		}
 		
 		// Move blocks
@@ -337,12 +358,16 @@ int main() {
 				background_draw(&backgrounds[background_index], CONFIG_3D_SLIDERSTATE);
 			}
 		
-			draw_time(&fnt, time_played, 20, 20);
 		
 			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], CONFIG_3D_SLIDERSTATE);
 			}
 			player_draw(&p1, CONFIG_3D_SLIDERSTATE);
+			
+			// Foregrounds
+			for (unsigned int foreground_index = 0; foreground_index < FOREGROUND_NUMBER; foreground_index++) {
+				background_draw(&foregrounds[foreground_index], CONFIG_3D_SLIDERSTATE);
+			}
 			
 		sf2d_end_frame();
 
@@ -353,23 +378,35 @@ int main() {
 			for (int background_index = BACKGROUND_NUMBER - 1; background_index >= 0; background_index--) {
 				background_draw(&backgrounds[background_index], -CONFIG_3D_SLIDERSTATE);
 			}
-			
-			draw_time(&fnt, time_played, 20, 20);
 
 			for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 				block_draw(&blocks[block_index], -CONFIG_3D_SLIDERSTATE);
 			}
 			player_draw(&p1, -CONFIG_3D_SLIDERSTATE);
 			
+			// Foregrounds
+			for (unsigned int foreground_index = 0; foreground_index < FOREGROUND_NUMBER; foreground_index++) {
+				background_draw(&foregrounds[foreground_index], -CONFIG_3D_SLIDERSTATE);
+			}
+			
 		sf2d_end_frame();
 
-		if (show_debug) {
-			sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+		
+		// Bottom Screen
+		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+		
 			
+			sf2d_draw_texture(controlls, 0, 0);
+			
+			draw_time(&fnt, time_played, 20, 20);
+			
+			if (show_debug) {
 				draw_float(&fnt, debug_float, 2, 300, 20);
+			}
 			
-			sf2d_end_frame();
-		}
+			
+		sf2d_end_frame();
+
 
 
 		sf2d_swapbuffers();
@@ -381,8 +418,16 @@ int main() {
 	}
 
 	player_destroy(&p1);
-	for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
+	sf2d_free_texture(block_sprite);
+	/*for (unsigned int block_index = 0; block_index < BLOCK_NUMBER; block_index++) {
 		block_destroy(&blocks[block_index]);
+	}*/
+	sf2d_free_texture(controlls);
+	for (int background_index = BACKGROUND_NUMBER - 1; background_index >= 0; background_index--) {
+		background_destroy(&backgrounds[background_index]);
+	}
+	for (unsigned int foreground_index = 0; foreground_index < FOREGROUND_NUMBER; foreground_index++) {
+		background_destroy(&foregrounds[foreground_index]);
 	}
 
 	sf2d_fini();

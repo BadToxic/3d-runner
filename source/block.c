@@ -46,5 +46,5 @@ void block_draw(struct Block *b, float slider_state) {
 }
 
 void block_destroy(struct Block *b) {
-	sf2d_free_texture(b->sprite);
+	// sf2d_free_texture(b->sprite);
 }
