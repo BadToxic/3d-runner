@@ -1,5 +1,9 @@
 # 3D Runner
 
+[3D Runner on my homepage](http://badtoxic.de/wordpress/games/3d-runner "3D Runner Site")
+
+----
+
 ## Introduction
 
 _3D Runner_ is an open source homebrew game that is created to run on _Nintendos 3DS_ handheld family (_3DS_, _3DS XL_, _2DS_, _New 3DS_ and _New 3DS XL_).
@@ -33,4 +37,7 @@ I installed:
 - **_sf2dlib_** a simple and Fast 2D library for the Nintendo _3DS_ (using _ctrulib_) 
 
 
+----
+
+![Screenshot of the game](https://github.com/BadToxic/3d-runner/blob/master/img/screenshot-01.png "Screenshot of the game")
 
